@@ -1,0 +1,112 @@
+{
+  "contract_name": "telehealthxion",
+  "contract_version": "0.1.0",
+  "idl_version": "1.0.0",
+  "instantiate": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "InstantiateMsg",
+    "type": "object"
+  },
+  "execute": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "ExecuteMsg",
+    "oneOf": [
+      {
+        "type": "object",
+        "required": [
+          "enter_health_record"
+        ],
+        "properties": {
+          "enter_health_record": {
+            "type": "object",
+            "required": [
+              "diagnosis",
+              "patient_id",
+              "prescription",
+              "signs_n_symptoms"
+            ],
+            "properties": {
+              "diagnosis": {
+                "type": "string"
+              },
+              "patient_id": {
+                "type": "string"
+              },
+              "prescription": {
+                "type": "string"
+              },
+              "signs_n_symptoms": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    ]
+  },
+  "query": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "QueryMsg",
+    "oneOf": [
+      {
+        "type": "object",
+        "required": [
+          "get_health_record"
+        ],
+        "properties": {
+          "get_health_record": {
+            "type": "object",
+            "required": [
+              "patient_id"
+            ],
+            "properties": {
+              "patient_id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    ]
+  },
+  "migrate": null,
+  "sudo": null,
+  "responses": {
+    "get_health_record": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "RecordDetailsEntry",
+      "type": "object",
+      "required": [
+        "diagnosis",
+        "doctor",
+        "patient_id",
+        "prescription",
+        "signs_n_symptoms",
+        "timestamp"
+      ],
+      "properties": {
+        "diagnosis": {
+          "type": "string"
+        },
+        "doctor": {
+          "type": "string"
+        },
+        "patient_id": {
+          "type": "string"
+        },
+        "prescription": {
+          "type": "string"
+        },
+        "signs_n_symptoms": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    }
+  }
+}

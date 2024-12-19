@@ -1,0 +1,14 @@
+22:39:47.774 [NamespaceSystem-akka.actor.default-dispatcher-5] INFO akka.event.slf4j.Slf4jLogger - Slf4jLogger started
+22:39:48.347 [main] INFO com.firebase.server.forge.App$ - Listening at 127.0.0.1:9000
+22:39:50.022 [NamespaceSystem-akka.actor.default-dispatcher-5] INFO com.firebase.core.namespace.NamespaceActor - telehealth-sol-default-rtdb successfully activated FBKV (SurveyIdle(0)) wait: 590ms, init: 0ms
+22:39:50.388 [NamespaceSystem-blocking-namespace-operation-dispatcher-7] INFO com.firebase.core.namespace.StateManager - Namespace telehealth-sol-default-rtdb status Active to Active
+22:40:22.346 [FirebaseWorkerPool-1-3] WARN com.firebase.core.persistence.backend.dummy.EmulatorMetadataPersistence - Multiple projectIds are not recommended in single project mode. Requested 
+namespace telehealth-sol, but the emulator is configured for telehealth-sol-default-rtdb. To 
+opt-out of single project mode add/set the singleProjectMode: false property in 
+the firebase.json emulators config. 
+22:40:22.392 [NamespaceSystem-akka.actor.default-dispatcher-10] INFO com.firebase.core.namespace.NamespaceActor - telehealth-sol successfully activated FBKV (SurveyIdle(0)) wait: 18ms, init: 0ms
+00:16:13.103 [Thread-0] INFO com.firebase.server.forge.App$ - Attempting graceful shutdown.
+00:16:13.185 [NamespaceSystem-akka.actor.default-dispatcher-1221] INFO com.firebase.core.namespace.Terminator$Terminator - 2 actors left to terminate: telehealth-sol, telehealth-sol-default-rtdb
+00:16:13.235 [NamespaceSystem-akka.actor.default-dispatcher-1220] INFO com.firebase.core.namespace.NamespaceActor - stopped namespace actor for telehealth-sol
+00:16:13.235 [NamespaceSystem-akka.actor.default-dispatcher-1222] INFO com.firebase.core.namespace.NamespaceActor - stopped namespace actor for telehealth-sol-default-rtdb
+00:16:13.293 [Thread-0] INFO com.firebase.server.forge.App$ - Graceful shutdown complete.

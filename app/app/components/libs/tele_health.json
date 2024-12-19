@@ -1,0 +1,124 @@
+{
+  "address": "H946v5ZdWCTBKb6Zyc6GXRmANSrKp1NaZFyT1QNC4UoL",
+  "metadata": {
+    "name": "tele_health",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "enter_health_record",
+      "discriminator": [
+        1,
+        238,
+        4,
+        119,
+        95,
+        250,
+        129,
+        209
+      ],
+      "accounts": [
+        {
+          "name": "record_entry",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "doctor",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "patient_id",
+          "type": "string"
+        },
+        {
+          "name": "signs_n_symptoms",
+          "type": "string"
+        },
+        {
+          "name": "diagnosis",
+          "type": "string"
+        },
+        {
+          "name": "prescription",
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "RecordDetailsEntry",
+      "discriminator": [
+        148,
+        192,
+        163,
+        69,
+        166,
+        60,
+        160,
+        44
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "SNSTooLong",
+      "msg": "Signs ann symptoms should be less than 300 characters"
+    },
+    {
+      "code": 6001,
+      "name": "DiagnosistTooLong",
+      "msg": "Diagnosis shouldn't be more than 300 characters"
+    },
+    {
+      "code": 6002,
+      "name": "PrescriptionTooLong",
+      "msg": "Prescription note too long"
+    }
+  ],
+  "types": [
+    {
+      "name": "RecordDetailsEntry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "doctor",
+            "type": "pubkey"
+          },
+          {
+            "name": "patient_id",
+            "type": "string"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "signs_n_symptoms",
+            "type": "string"
+          },
+          {
+            "name": "diagnosis",
+            "type": "string"
+          },
+          {
+            "name": "prescription",
+            "type": "string"
+          }
+        ]
+      }
+    }
+  ]
+}

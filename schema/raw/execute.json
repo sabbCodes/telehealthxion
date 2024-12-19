@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ExecuteMsg",
+  "oneOf": [
+    {
+      "type": "object",
+      "required": [
+        "enter_health_record"
+      ],
+      "properties": {
+        "enter_health_record": {
+          "type": "object",
+          "required": [
+            "diagnosis",
+            "patient_id",
+            "prescription",
+            "signs_n_symptoms"
+          ],
+          "properties": {
+            "diagnosis": {
+              "type": "string"
+            },
+            "patient_id": {
+              "type": "string"
+            },
+            "prescription": {
+              "type": "string"
+            },
+            "signs_n_symptoms": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  ]
+}
