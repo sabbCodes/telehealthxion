@@ -26,7 +26,7 @@ export default function RootLayout({
       <body>
         <ReactQueryProvider>
           <AbstraxionProvider config={{
-              treasury: "xion19pt4yhjl069twl5sg3lxv8qq4z46hkjx2pujf8w7q767d28czdgsk4c9xd"
+              treasury: "xion1f32s6lwqrav4v7g3kdn5uj8pu9n5z9683w62l7clsqxkszgtnmzsgg7pdz"
             }}
           >
             {children}
