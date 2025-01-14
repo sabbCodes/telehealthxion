@@ -5,7 +5,7 @@ import {
   useAbstraxionAccount,
   useAbstraxionSigningClient,
 } from "@burnt-labs/abstraxion";
-import { GasPrice, SigningStargateClient, coins } from '@cosmjs/stargate';
+import { GasPrice, SigningStargateClient, StdFee, coins } from '@cosmjs/stargate';
 import Image from 'next/image';
 import DocImg from '@/public/Frame 75.svg';
 import Heart from '@/public/heart.svg';
@@ -23,6 +23,8 @@ import { collection, query, where, getDocs, addDoc } from 'firebase/firestore';
 import { db } from '@/app/components/firebase-config';
 import { useParams } from 'next/navigation';
 import { format } from 'date-fns';
+
+import { DirectSecp256k1Wallet } from '@cosmjs/proto-signing';
 
 interface DoctorDetails {
     firstName: string;
@@ -92,72 +94,141 @@ function DocDetails() {
         setSelectedTime(time);
     };
 
+    // FD9A1000963070BE52DFD77E0F2A2759B1759FE795DAFAEFDD21C724946B2161 INSTANTIATE
+    // 4FA06CE78982DE9215602A76C37800964E1C391FFB4F01CC14EA2BFB882AD935 DEPLOY
+    // xion1v87k482eju82dw7tng0x4u3shce426k3yz9j9f084md3rc5u8lmq788ydj CA
+    // xion1sqrv8xr96jjlv6647g6fq4pc7l97sxrzspvau02m98tac8la8ugsjvmve6 TREASURY
+
+    // const handleBooking = async () => {
+    //     if (!selectedDate || !selectedTime) {
+    //         alert('Please select a date and time');
+    //         return;
+    //     }
+
+    //     if (!account?.bech32Address || !client) {
+    //         setIsOpen(true);
+    //         return;
+    //     }
+
+    //     setLoading(true);
+
+    //     try {
+    //         const doctorWalletAddress = doctorDetails?.walletAddress || '';
+    //         const platformWalletAddress = 'xion16cvzs29c3ex4wrs2x663lrqp8e3fma9je6yjljt55xsvdnn3u09qdjz5xs';
+    //         const consultationFeeInUSDC = doctorDetails!.consultationFee;
+
+    //         // Calculate fees in uusdc (USDC has 6 decimal places)
+    //         const platformFee = Math.round(consultationFeeInUSDC * 0.1 * 1000000);
+    //         const doctorFee = Math.round(consultationFeeInUSDC * 0.9 * 1000000);
+
+    //         // Define the fee structure
+    //         const fee: StdFee = {
+    //             amount: coins(1000, 'uxion'), // Adjust the amount based on your needs
+    //             gas: "500000"
+    //         };
+
+    //         // Platform payment message
+    //         const platformPayment = {
+    //             typeUrl: "/cosmos.bank.v1beta1.MsgSend",
+    //             value: {
+    //                 fromAddress: account.bech32Address,
+    //                 toAddress: platformWalletAddress,
+    //                 amount: coins(platformFee.toString(), 'uusdc')
+    //             }
+    //         };
+
+    //         // Doctor payment message
+    //         const doctorPayment = {
+    //             typeUrl: "/cosmos.bank.v1beta1.MsgSend",
+    //             value: {
+    //                 fromAddress: account.bech32Address,
+    //                 toAddress: doctorWalletAddress,
+    //                 amount: coins(doctorFee.toString(), 'uusdc')
+    //             }
+    //         };
+
+    //         // Execute transaction using the Abstraxion client
+    //         const result = await client.signAndBroadcast(
+    //             account.bech32Address,
+    //             [platformPayment, doctorPayment],
+    //             fee,
+    //             `Consultation booking for ${selectedDate} at ${selectedTime}`
+    //         );
+
+    //         if (result.code === 0) {
+    //             await saveBookingToDatabase(result.transactionHash);
+    //             alert(`Session booked successfully! Transaction hash: ${result.transactionHash}`);
+    //         } else {
+    //             throw new Error(`Transaction failed with code ${result.code}: ${result.rawLog}`);
+    //         }
+    //     } catch (error) {
+    //         console.error('Payment failed:', error);
+    //         alert('Payment failed. Please try again.');
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+
     const handleBooking = async () => {
         if (!selectedDate || !selectedTime) {
             alert('Please select a date and time');
             return;
         }
-
+    
         if (!account?.bech32Address || !client) {
             setIsOpen(true);
             return;
         }
-
+    
         setLoading(true);
-
+    
         try {
             const doctorWalletAddress = doctorDetails?.walletAddress || '';
-            const platformWalletAddress = 'xion16cvzs29c3ex4wrs2x663lrqp8e3fma9je6yjljt55xsvdnn3u09qdjz5xs'; // Replace with actual platform address
-            const consultationFeeInUSDC = doctorDetails!.consultationFee;
-
-            // Calculate fees
-            const platformFee = Math.round(consultationFeeInUSDC * 0.1 * 1000000);
-            const doctorFee = Math.round(consultationFeeInUSDC * 0.9 * 1000000);
-
-            // Platform payment message
-            const platformMsg = {
-                typeUrl: "/cosmos.bank.v1beta1.MsgSend",
-                value: {
-                    fromAddress: account.bech32Address,
-                    toAddress: platformWalletAddress,
-                    amount: [{
-                        denom: "uusdc",
-                        amount: platformFee.toString()
-                    }]
-                }
-            };
-
-            // Doctor payment message
-            const doctorMsg = {
+            // const consultationFeeInUSDC = doctorDetails!.consultationFee;
+            const consultationFeeInUSDC = 10000;
+    
+            // Convert USDC amount to the smallest unit (6 decimals)
+            // const feeInSmallestUnit = Math.round(consultationFeeInUSDC * 1000000);
+    
+            // Simple single transfer to doctor
+            const transferMsg = {
                 typeUrl: "/cosmos.bank.v1beta1.MsgSend",
                 value: {
                     fromAddress: account.bech32Address,
                     toAddress: doctorWalletAddress,
                     amount: [{
-                        denom: "uusdc",
-                        amount: doctorFee.toString()
+                        denom: "uxion",
+                        amount: consultationFeeInUSDC.toString()
                     }]
                 }
             };
-
-            // Execute transaction
+    
+            // Use a basic fee structure
+            const fee = "auto";
+    
+            // Execute single transfer transaction
             const result = await client.signAndBroadcast(
                 account.bech32Address,
-                [platformMsg, doctorMsg],
-                {
-                    amount: [{ amount: "0.001", denom: "uxion" }],
-                    gas: "500000"
-                },
-                `Consultation booking for ${selectedDate} at ${selectedTime}`
+                [transferMsg],
+                fee
             );
-
-            if (result) {
+    
+            if (result.code === 0) {
                 await saveBookingToDatabase(result.transactionHash);
                 alert(`Session booked successfully! Transaction hash: ${result.transactionHash}`);
+            } else {
+                throw new Error(`Transaction failed with code ${result.code}: ${result.rawLog}`);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Payment failed:', error);
-            alert('Payment failed. Please try again.');
+            
+            if (error.message?.includes('authorization not found')) {
+                alert('Transaction failed: Unable to process payment. Please ensure you have enough USDC tokens.');
+            } else if (error.message?.includes('insufficient funds')) {
+                alert('Transaction failed: Insufficient funds. Please check your USDC balance.');
+            } else {
+                alert('Payment failed. Please try again.');
+            }
         } finally {
             setLoading(false);
         }
@@ -301,10 +372,7 @@ function DocDetails() {
             </footer>
 
             {/* Abstraxion modal */}
-            <Abstraxion
-                isOpen={isOpen}
-                onClose={() => setIsOpen(false)}
-            />
+            <Abstraxion onClose={() => setIsOpen(false)} />
         </main>
     );
 }

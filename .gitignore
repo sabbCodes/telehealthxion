@@ -1,4 +1,5 @@
 /target
+/payments/target
 # dependencies
 /node_modules
 /.pnp
