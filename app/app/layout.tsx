@@ -1,16 +1,10 @@
 "use client";
 
-// import type { Metadata } from "next";
 import "./globals.css";
-// import AppWalletProvider from "./components/AppWalletProvider";
 import { ReactQueryProvider } from "./react-query-provider";
 import {AbstraxionProvider} from "@burnt-labs/abstraxion";
 import "@burnt-labs/abstraxion/dist/index.css";
 import "@burnt-labs/ui/dist/index.css";
-
-// xion1vapzqqq6mn5qkjmlmt2uq00wzr7sar6xr0xl75ngu7ys72yu8lrstyxjd0
-// xion1sqrv8xr96jjlv6647g6fq4pc7l97sxrzspvau02m98tac8la8ugsjvmve6
-// xion1vdemrvdqdqkkz4clard7pv4f9pmws8pyrqalv7paud2wczrfw63q67uvwg
 
 // xion1f0u3lnk3nfg256ke29szf6fgswz2a02l8gq966vlkqjsrvr2zf4s5u0vhv
 // xion1c32n732hzf96hqfduzkwgnq0ezxzcwusxprwm4
@@ -26,7 +20,7 @@ export default function RootLayout({
       <body>
         <ReactQueryProvider>
           <AbstraxionProvider config={{
-              treasury: "xion1f32s6lwqrav4v7g3kdn5uj8pu9n5z9683w62l7clsqxkszgtnmzsgg7pdz"
+              treasury: "xion1v4n3tfl5yx0y5tuhl07nfp8nvmaydq0tdwth0zz2v34rgx86khzqry42m9"
             }}
           >
             {children}

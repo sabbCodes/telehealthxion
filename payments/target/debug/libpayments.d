@@ -1,1 +1,0 @@
-/home/sabb/telehealthxion/payments/target/debug/libpayments.so: /home/sabb/telehealthxion/payments/src/lib.rs /home/sabb/telehealthxion/payments/src/msg/execute_msg.rs /home/sabb/telehealthxion/payments/src/msg/instantiate_msg.rs /home/sabb/telehealthxion/payments/src/msg/mod.rs /home/sabb/telehealthxion/payments/src/msg/query_msg.rs

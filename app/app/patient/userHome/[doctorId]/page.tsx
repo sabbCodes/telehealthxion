@@ -183,30 +183,28 @@ function DocDetails() {
         setLoading(true);
     
         try {
-            const doctorWalletAddress = doctorDetails?.walletAddress || '';
-            // const consultationFeeInUSDC = doctorDetails!.consultationFee;
-            const consultationFeeInUSDC = 10000;
+            // const doctorWalletAddress = doctorDetails?.walletAddress || '';
+            const doctorWalletAddress = "xion16cvzs29c3ex4wrs2x663lrqp8e3fma9je6yjljt55xsvdnn3u09qdjz5xs";
+            const consultationFeeInXION = doctorDetails!.consultationFee;
     
-            // Convert USDC amount to the smallest unit (6 decimals)
-            // const feeInSmallestUnit = Math.round(consultationFeeInUSDC * 1000000);
+            // Convert XION amount to uxion (microXION - 6 decimals)
+            const feeInSmallestUnit = Math.round(consultationFeeInXION * 1000000);
     
-            // Simple single transfer to doctor
+            // Transfer message using XION
             const transferMsg = {
                 typeUrl: "/cosmos.bank.v1beta1.MsgSend",
                 value: {
                     fromAddress: account.bech32Address,
                     toAddress: doctorWalletAddress,
                     amount: [{
-                        denom: "uxion",
-                        amount: consultationFeeInUSDC.toString()
+                        denom: "uxion",  // Using XION's native token denomination
+                        amount: feeInSmallestUnit.toString()
                     }]
                 }
             };
     
-            // Use a basic fee structure
-            const fee = "auto";
+            const fee = 1.8;
     
-            // Execute single transfer transaction
             const result = await client.signAndBroadcast(
                 account.bech32Address,
                 [transferMsg],
@@ -221,11 +219,11 @@ function DocDetails() {
             }
         } catch (error: any) {
             console.error('Payment failed:', error);
-            
+    
             if (error.message?.includes('authorization not found')) {
-                alert('Transaction failed: Unable to process payment. Please ensure you have enough USDC tokens.');
+                alert('Transaction failed: Unable to process payment. Please ensure you have enough XION tokens.');
             } else if (error.message?.includes('insufficient funds')) {
-                alert('Transaction failed: Insufficient funds. Please check your USDC balance.');
+                alert('Transaction failed: Insufficient funds. Please check your XION balance.');
             } else {
                 alert('Payment failed. Please try again.');
             }
@@ -343,7 +341,7 @@ function DocDetails() {
             </article>
             <article className='mt-6 pb-16'>
                 <h2 className='font-jakarta font-medium text-lg'>
-                    CONSULTATION FEE: {doctorDetails.consultationFee} USDC
+                    CONSULTATION FEE: {doctorDetails.consultationFee} XION
                 </h2>
                 <button
                     onClick={handleBooking}
