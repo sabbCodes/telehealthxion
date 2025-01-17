@@ -1,12 +1,16 @@
 "use client";
 
+import {
+  Abstraxion,
+  useAbstraxionAccount,
+} from "@burnt-labs/abstraxion";
 import React, { useEffect, useState, useRef, Suspense } from 'react';
 import { collection, onSnapshot, addDoc, updateDoc, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/app/components/firebase-config';
 import './videocall.css';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useWallet } from '@solana/wallet-adapter-react';
-import PopupWallet from '@/app/components/PopupWallet';
+// import { useWallet } from '@solana/wallet-adapter-react';
+// import PopupWallet from '@/app/components/PopupWallet';
 import Image from 'next/image';
 import CallIcon from '@/public/call.svg';
 
@@ -16,7 +20,6 @@ const servers = {
 };
 
 function VideoCallComponent() {
-  const wallet = useWallet();
   const [showConnectWallet, setShowConnectWallet] = useState(false);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
@@ -27,6 +30,10 @@ function VideoCallComponent() {
   const searchParams = useSearchParams();
   const receiverId = searchParams.get('receiverId');
   const router = useRouter();
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Abstraxion hook
+  const { data: account } = useAbstraxionAccount();
 
   // Generate session ID based on userId and receiverId
   const generateSessionId = (user1: string, user2: string) => {
@@ -34,12 +41,13 @@ function VideoCallComponent() {
   };
 
   useEffect(() => {
-    if (wallet.connected && wallet.publicKey) {
-      setUserId(wallet.publicKey.toString());
+    if (account?.bech32Address) {
+      setUserId(account?.bech32Address);
     } else {
-      setShowConnectWallet(true);
+        setIsOpen(true);
+        return;
     }
-  }, [wallet.connected, wallet.publicKey]);
+}, [account?.bech32Address]);
 
   useEffect(() => {
     const newPc = new RTCPeerConnection(servers);
@@ -234,9 +242,7 @@ function VideoCallComponent() {
           <Image src={CallIcon} alt="hang up call" />
         </div>
       </div>
-      {showConnectWallet && (
-        <PopupWallet onClose={() => setShowConnectWallet(false)} />
-      )}
+      {isOpen && <Abstraxion onClose={() => setIsOpen(false)} />}
     </div>
   );
 }

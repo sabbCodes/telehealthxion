@@ -19,6 +19,7 @@ import { db } from '@/app/components/firebase-config';
 import { doc, getDoc, collection, query, where, getDocs, limit } from "firebase/firestore";
 import { useRouter } from 'next/navigation';
 import { useAbstraxionAccount } from "@burnt-labs/abstraxion";
+import { DNA } from "react-loader-spinner";
 
 interface UserData {
     firstName: string;
@@ -94,7 +95,18 @@ function Home() {
     }, [bech32Address, isConnected, isConnecting]);
 
     if (!userData) {
-        return <p>Loading...</p>;
+        return (
+            <div className="flex justify-center items-center h-64">
+                <DNA
+                    visible={true}
+                    height="80"
+                    width="80"
+                    ariaLabel="dna-loading"
+                    wrapperStyle={{}}
+                    wrapperClass="dna-wrapper"
+                />
+            </div>
+        );
     }
 
     const formatWalletAddress = (address: string) => {

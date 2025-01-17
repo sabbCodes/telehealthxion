@@ -1,5 +1,9 @@
 "use client";
 
+import {
+    Abstraxion,
+    useAbstraxionAccount,
+} from "@burnt-labs/abstraxion";
 import Image from 'next/image';
 import DocImg from '@/public/Frame 75.svg';
 import ArrowLeft from '@/public/arrow-left.svg';
@@ -13,17 +17,17 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { database, db } from '@/app/components/firebase-config';
 import PatientDetailsPopup from '@/app/components/PatientDetailsPopup';
-import { PublicKey } from '@solana/web3.js';
-import { Program, AnchorProvider, web3 } from '@coral-xyz/anchor';
-import idl from '@/app/components/libs/tele_health.json';
-import type { TeleHealth } from '@/app/components/libs/tele_health';
-import { useWallet, useConnection } from '@solana/wallet-adapter-react';
-import { useQuery } from '@tanstack/react-query';
-import { useMutation } from '@tanstack/react-query';
+// import { PublicKey } from '@solana/web3.js';
+// import { Program, AnchorProvider, web3 } from '@coral-xyz/anchor';
+// import idl from '@/app/components/libs/tele_health.json';
+// import type { TeleHealth } from '@/app/components/libs/tele_health';
+// import { useWallet, useConnection } from '@solana/wallet-adapter-react';
+// import { useQuery } from '@tanstack/react-query';
+// import { useMutation } from '@tanstack/react-query';
 import { toast, ToastContainer } from 'react-toastify';
 import { addDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { ref, push, onValue, off } from "firebase/database";
-import PopupWallet from '@/app/components/PopupWallet';
+// import PopupWal.let from '@/app/components/PopupWallet';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/navigation';
 
@@ -36,36 +40,35 @@ interface PatientDetails {
     walletAddress: string;
 }
 
-interface MedicalRecord {
-    doctorId: string;
-    signsAndSymptoms: string;
-    diagnosis: string;
-    prescription: string;
-    timestamp: number;
-}
+// interface MedicalRecord {
+//     doctorId: string;
+//     signsAndSymptoms: string;
+//     diagnosis: string;
+//     prescription: string;
+//     timestamp: number;
+// }
 
 interface CryptoKeyPair {
     publicKey: CryptoKey;
     privateKey: CryptoKey;
 }
 
-function useAnchorProvider() {
-    const { connection } = useConnection();
-    const wallet = useWallet();
+// function useAnchorProvider() {
+//     const { connection } = useConnection();
+//     const wallet = useWallet();
 
-    return new AnchorProvider(connection, wallet as any, {
-        commitment: 'confirmed',
-    });
-}
+//     return new AnchorProvider(connection, wallet as any, {
+//         commitment: 'confirmed',
+//     });
+// }
 
-function getRecordsProgram(provider: AnchorProvider): Program<TeleHealth> {
-    return new Program(idl as unknown as TeleHealth, provider);
-}
+// function getRecordsProgram(provider: AnchorProvider): Program<TeleHealth> {
+//     return new Program(idl as unknown as TeleHealth, provider);
+// }
 
 function Chat() {
-    const wallet = useWallet();
-    const provider = useAnchorProvider();
-    const program = getRecordsProgram(provider);
+    // const provider = useAnchorProvider();
+    // const program = getRecordsProgram(provider);
     const { chatId } = useParams();
     const [message, setMessage] = useState<string>('');
     const [patientDetails, setPatientDetails] = useState<PatientDetails | null>(null);
@@ -82,15 +85,20 @@ function Chat() {
     const [publicKey, setPublicKey] = useState<string | null>(null);
     const [publicKeyStoredInDb, setPublicKeyStoredInDb] = useState(false);
     const router = useRouter();
+    const [isOpen, setIsOpen] = useState(false);
     let userId: string;
 
+    // Abstraxion hooks
+    const { data: account } = useAbstraxionAccount();
+
     useEffect(() => {
-        if (wallet.connected && wallet.publicKey) {
-          userId = wallet.publicKey.toString();
+        if (account?.bech32Address) {
+            userId = account?.bech32Address;
         } else {
-          setShowConnectWallet(true);
+            setIsOpen(true);
+            return;
         }
-    }, [wallet]);
+    }, [account?.bech32Address]);
 
     // 1. Key Generation
     const generateKeyPair = async (): Promise<CryptoKeyPair> => {
@@ -109,8 +117,8 @@ function Chat() {
     // 2. Key Exchange
     const exportPublicKey = async (keyPair: CryptoKeyPair): Promise<string> => {
         const exportedKey = await crypto.subtle.exportKey(
-          "spki",
-          keyPair.publicKey
+            "spki",
+            keyPair.publicKey
         );
         const exportedKeyArray = Array.from(new Uint8Array(exportedKey));
         return btoa(String.fromCharCode.apply(null, exportedKeyArray));
@@ -275,7 +283,7 @@ function Chat() {
         return date.toLocaleTimeString([], {
             hour: '2-digit',
             minute: '2-digit',
-            hour12: false, // Ensures 24-hour format
+            hour12: false,
         });
     };
 
@@ -292,16 +300,16 @@ function Chat() {
 
     useEffect(() => {
         if (otherPublicKey) {
-          const storedMessages = loadSentMessages(otherPublicKey);
-          setDecryptedMessages((prevMessages) => [
-            ...prevMessages,
-            ...storedMessages.map((msg: any) => ({
-              content: msg.message,
-              sender: publicKey,
-              timestamp: msg.timestamp,
-              formattedTime: formatTimestamp(msg.timestamp),
-            })),
-          ]);
+            const storedMessages = loadSentMessages(otherPublicKey);
+            setDecryptedMessages((prevMessages) => [
+                ...prevMessages,
+                ...storedMessages.map((msg: any) => ({
+                content: msg.message,
+                sender: publicKey,
+                timestamp: msg.timestamp,
+                formattedTime: formatTimestamp(msg.timestamp),
+                })),
+            ]);
         }
     }, [otherPublicKey]);
 
@@ -423,79 +431,79 @@ function Chat() {
         fetchPatientDetails();
     }, [chatId]);
 
-    const recordsQuery = useQuery({
-        queryKey: ['recordDetailsEntry', patientDetails?.walletAddress],
-        queryFn: async () => {
-            if (!patientDetails) {
-                throw new Error('No patient details available')
-            };
+    // const recordsQuery = useQuery({
+    //     queryKey: ['recordDetailsEntry', patientDetails?.walletAddress],
+    //     queryFn: async () => {
+    //         if (!patientDetails) {
+    //             throw new Error('No patient details available')
+    //         };
 
-            const patientPublicKey = new PublicKey(patientDetails.walletAddress);
+    //         const patientPublicKey = new PublicKey(patientDetails.walletAddress);
 
-            const allRecords = await program.account.recordDetailsEntry.all();
+    //         const allRecords = await program.account.recordDetailsEntry.all();
 
-            const filteredRecords = allRecords.filter(record =>
-                record.account.patientId === patientPublicKey.toBase58()
-            );
+    //         const filteredRecords = allRecords.filter(record =>
+    //             record.account.patientId === patientPublicKey.toBase58()
+    //         );
 
-            return filteredRecords;
-        },
-        enabled: !!patientDetails,
-    });
+    //         return filteredRecords;
+    //     },
+    //     enabled: !!patientDetails,
+    // });
 
-    const handleFetchRecords = async (): Promise<MedicalRecord[] | null> => {
-        if (recordsQuery.isSuccess) {
-            return recordsQuery.data.map(record => ({
-                doctorId: record.account.doctor.toBase58(),
-                signsAndSymptoms: record.account.signsNSymptoms,
-                diagnosis: record.account.diagnosis,
-                prescription: record.account.prescription,
-                timestamp: record.account.timestamp.toNumber(),
-            }));
-        } else if (recordsQuery.isError) {
-            console.error('Error fetching records:', recordsQuery.error);
-            return null;
-        }
-        return null;
-    };
+    // const handleFetchRecords = async (): Promise<MedicalRecord[] | null> => {
+    //     if (recordsQuery.isSuccess) {
+    //         return recordsQuery.data.map(record => ({
+    //             doctorId: record.account.doctor.toBase58(),
+    //             signsAndSymptoms: record.account.signsNSymptoms,
+    //             diagnosis: record.account.diagnosis,
+    //             prescription: record.account.prescription,
+    //             timestamp: record.account.timestamp.toNumber(),
+    //         }));
+    //     } else if (recordsQuery.isError) {
+    //         console.error('Error fetching records:', recordsQuery.error);
+    //         return null;
+    //     }
+    //     return null;
+    // };
 
-    const createEntry = useMutation({
-        mutationFn: async () => {
-            if (!wallet.publicKey || !patientDetails?.walletAddress) {
-                setShowConnectWallet(true);
-                throw new Error('Missing wallet or patient details.');
-            }
+    // const createEntry = useMutation({
+    //     mutationFn: async () => {
+    //         if (!wallet.publicKey || !patientDetails?.walletAddress) {
+    //             setShowConnectWallet(true);
+    //             throw new Error('Missing wallet or patient details.');
+    //         }
 
-            const record = web3.Keypair.generate();
+    //         const record = web3.Keypair.generate();
 
-            await program.methods
-                .enterHealthRecord(
-                    patientDetails.walletAddress,
-                    signsAndSymptoms,
-                    diagnosis,
-                    prescription
-                )
-                .accounts({
-                    recordEntry: record.publicKey,
-                    doctor: wallet.publicKey,
-                    // systemProgram: web3.SystemProgram.programId,
-                })
-                .signers([record])
-                .rpc();
-        },
-        onSuccess: (signature) => {
-            toast.success('Record updated successfully');
-            recordsQuery.refetch();
-            setShowPopup(false);
-            setSignsAndSymptoms('');
-            setDiagnosis('');
-            setPrescription('');
-            setMessage('');
-        },
-        onError: (error) => {
-            toast.error(`Failed to update record: ${error.message}`);
-        },
-    });
+    //         await program.methods
+    //             .enterHealthRecord(
+    //                 patientDetails.walletAddress,
+    //                 signsAndSymptoms,
+    //                 diagnosis,
+    //                 prescription
+    //             )
+    //             .accounts({
+    //                 recordEntry: record.publicKey,
+    //                 doctor: wallet.publicKey,
+    //                 // systemProgram: web3.SystemProgram.programId,
+    //             })
+    //             .signers([record])
+    //             .rpc();
+    //     },
+    //     onSuccess: (signature) => {
+    //         toast.success('Record updated successfully');
+    //         recordsQuery.refetch();
+    //         setShowPopup(false);
+    //         setSignsAndSymptoms('');
+    //         setDiagnosis('');
+    //         setPrescription('');
+    //         setMessage('');
+    //     },
+    //     onError: (error) => {
+    //         toast.error(`Failed to update record: ${error.message}`);
+    //     },
+    // });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setMessage(e.target.value);
@@ -509,9 +517,9 @@ function Chat() {
         setShowPopup(false);
     };
 
-    const handleUpdateRecords = () => {
-        createEntry.mutate();
-    }
+    // const handleUpdateRecords = () => {
+    //     createEntry.mutate();
+    // }
 
     const handleVideoCallClick = () => {
         if (chatId) {
@@ -543,15 +551,15 @@ function Chat() {
                 <PatientDetailsPopup
                     patientDetails={patientDetails}
                     onClose={handleClosePopup}
-                    onFetchRecords={handleFetchRecords}
-                    onUpdateRecords={handleUpdateRecords}
+                    // onFetchRecords={handleFetchRecords}
+                    // onUpdateRecords={handleUpdateRecords}
                     signsAndSymptoms={signsAndSymptoms}
                     setSignsAndSymptoms={setSignsAndSymptoms}
                     diagnosis={diagnosis}
                     setDiagnosis={setDiagnosis}
                     prescription={prescription}
                     setPrescription={setPrescription}
-                    handleUpdateRecords={handleUpdateRecords}
+                    // handleUpdateRecords={handleUpdateRecords}
                     loading={loading}
                 />
             )}
@@ -587,9 +595,7 @@ function Chat() {
                     )}
                 </div>
             </div>
-            {showConnectWallet && (
-                <PopupWallet onClose={() => setShowConnectWallet(false)} />
-            )}
+            {isOpen && <Abstraxion onClose={() => setIsOpen(false)} />}
             <ToastContainer />
         </main>
     );

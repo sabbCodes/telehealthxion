@@ -38,30 +38,30 @@ interface DoctorDetails {
 interface PatientDetailsPopupProps {
     patientDetails: PatientDetails | null;
     onClose: () => void;
-    onFetchRecords: () => Promise<MedicalRecord[] | null>;
-    onUpdateRecords: () => void;
+    // onFetchRecords: () => Promise<MedicalRecord[] | null>;
+    // onUpdateRecords: () => void;
     signsAndSymptoms: string;
     setSignsAndSymptoms: (value: string) => void;
     diagnosis: string;
     setDiagnosis: (value: string) => void;
     prescription: string;
     setPrescription: (value: string) => void;
-    handleUpdateRecords: () => void;
+    // handleUpdateRecords: () => void;
     loading: boolean;
 }
 
 const PatientDetailsPopup: React.FC<PatientDetailsPopupProps> = ({
-    patientDetails, 
-    onClose, 
-    onFetchRecords, 
-    onUpdateRecords, 
+    patientDetails,
+    onClose,
+    // onFetchRecords,
+    // onUpdateRecords,
     signsAndSymptoms,
     setSignsAndSymptoms,
     diagnosis,
     setDiagnosis,
     prescription,
     setPrescription,
-    handleUpdateRecords,
+    // handleUpdateRecords,
     loading
 }) => {
     const [records, setRecords] = useState<MedicalRecord[] | null>(null);
@@ -69,27 +69,27 @@ const PatientDetailsPopup: React.FC<PatientDetailsPopupProps> = ({
     const [showUpdateForm, setShowUpdateForm] = useState(false);
 
 
-    const fetchRecords = async () => {
-        // setLoading(true);
-        try {
-            const fetchedRecords = await onFetchRecords();
-            if (fetchedRecords) {
-                const recordsWithDoctorDetails = await Promise.all(
-                    fetchedRecords.map(async (record) => {
-                        const doctorDetails = await fetchDoctorDetails(record.doctorId);
-                        return { ...record, doctorDetails };
-                    })
-                );
-                setRecords(recordsWithDoctorDetails);
-            } else {
-                console.error('No records found or error occurred while fetching records.');
-            }
-        } catch (error) {
-            console.error('Error fetching records:', error);
-        } finally {
-            // setLoading(false);
-        }
-    };
+    // const fetchRecords = async () => {
+    //     // setLoading(true);
+    //     try {
+    //         const fetchedRecords = await onFetchRecords();
+    //         if (fetchedRecords) {
+    //             const recordsWithDoctorDetails = await Promise.all(
+    //                 fetchedRecords.map(async (record) => {
+    //                     const doctorDetails = await fetchDoctorDetails(record.doctorId);
+    //                     return { ...record, doctorDetails };
+    //                 })
+    //             );
+    //             setRecords(recordsWithDoctorDetails);
+    //         } else {
+    //             console.error('No records found or error occurred while fetching records.');
+    //         }
+    //     } catch (error) {
+    //         console.error('Error fetching records:', error);
+    //     } finally {
+    //         // setLoading(false);
+    //     }
+    // };
 
     const fetchDoctorDetails = async (doctorId: string): Promise<DoctorDetails | null> => {
         try {
@@ -170,7 +170,7 @@ const PatientDetailsPopup: React.FC<PatientDetailsPopupProps> = ({
                             className="w-full mb-4 p-2 border rounded"
                         />
                         <button
-                            onClick={handleUpdateRecords}
+                            // onClick={handleUpdateRecords}
                             className="bg-custom-blue text-white w-full py-2 rounded"
                             disabled={loading}
                         >
@@ -182,7 +182,10 @@ const PatientDetailsPopup: React.FC<PatientDetailsPopupProps> = ({
                         <div className="flex mt-1 w-full h-20 gap-2 mb-4 items-center">
                             <Image src={DocImg} alt='patient profile image' className='w-16 h-16 rounded-lg' />
                             <div className='flex flex-col justify-between h-full'>
-                                <button onClick={fetchRecords} className="bg-custom-blue text-white px-4 py-2 h-9 text-sm rounded">
+                                <button
+                                    // onClick={fetchRecords}
+                                    className="bg-custom-blue text-white px-4 py-2 h-9 text-sm rounded"
+                                >
                                     Get Medical Record
                                 </button>
                                 <button onClick={() => setShowUpdateForm(true)} className="bg-white text-custom-blue border border-custom-blue text-sm px-4 py-2 h-9 rounded">

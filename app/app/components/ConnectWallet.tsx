@@ -122,5 +122,6 @@ function ConnectWallet(): JSX.Element {
 
 export default ConnectWallet;
 
-// xion1h4h59tzltvqueat5q00kwdgalhxg9kw597tptzzeq2fnyqv5dwhqy7mekm
-// xion1f0u3lnk3nfg256ke29szf6fgswz2a02l8gq966vlkqjsrvr2zf4s5u0vhv
+// xion1h4h59tzltvqueat5q00kwdgalhxg9kw597tptzzeq2fnyqv5dwhqy7mekm  @sabbng01 doc
+// xion1f0u3lnk3nfg256ke29szf6fgswz2a02l8gq966vlkqjsrvr2zf4s5u0vhv  @main user
+// xion16cvzs29c3ex4wrs2x663lrqp8e3fma9je6yjljt55xsvdnn3u09qdjz5xs  @ade wallet

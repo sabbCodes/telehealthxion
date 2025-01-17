@@ -1,5 +1,9 @@
 "use client";
 
+import {
+    Abstraxion,
+    useAbstraxionAccount,
+} from "@burnt-labs/abstraxion";
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -13,8 +17,7 @@ import MicrophoneIcon from '@/public/microphone-2.svg';
 import SendIcon from '@/public/send.svg';
 import { database, db } from '@/app/components/firebase-config';
 import { addDoc, collection, getDocs, query, where } from '@firebase/firestore';
-import { useWallet } from '@solana/wallet-adapter-react';
-import PopupWallet from '@/app/components/PopupWallet';
+// import PopupWallet from '@/app/components/PopupWallet';
 import { useParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 
@@ -33,7 +36,7 @@ interface DoctorDetails {
 }
 
 function Chat() {
-    const wallet = useWallet();
+    // const wallet = useWallet();
     const [message, setMessage] = useState('');
     const [decryptedMessages, setDecryptedMessages] = useState<any[]>([]);
     const [chatKeyPair, setChatKeyPair] = useState<CryptoKeyPair | null>(null);
@@ -45,14 +48,19 @@ function Chat() {
     const router = useRouter();
     const chatRef = ref(database, 'chats/doctor-patient-chat');
     let userId: string;
+    const [isOpen, setIsOpen] = useState(false);
+
+    // Abstraxion hook
+    const { data: account } = useAbstraxionAccount();
 
     useEffect(() => {
-        if (wallet.connected && wallet.publicKey) {
-          userId = wallet.publicKey.toString();
+        if (account?.bech32Address) {
+            userId = account?.bech32Address;
         } else {
-          setShowConnectWallet(true);
+            setIsOpen(true);
+            return;
         }
-    }, [wallet]);
+    }, [account?.bech32Address]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setMessage(e.target.value);
@@ -77,8 +85,8 @@ function Chat() {
     // 2. Key Exchange
     const exportPublicKey = async (keyPair: CryptoKeyPair): Promise<string> => {
         const exportedKey = await crypto.subtle.exportKey(
-          "spki",
-          keyPair.publicKey
+            "spki",
+            keyPair.publicKey
         );
         const exportedKeyArray = Array.from(new Uint8Array(exportedKey));
         return btoa(String.fromCharCode.apply(null, exportedKeyArray));
@@ -260,16 +268,16 @@ function Chat() {
 
     useEffect(() => {
         if (otherPublicKey) {
-          const storedMessages = loadSentMessages(otherPublicKey);
-          setDecryptedMessages((prevMessages) => [
+            const storedMessages = loadSentMessages(otherPublicKey);
+            setDecryptedMessages((prevMessages) => [
             ...prevMessages,
             ...storedMessages.map((msg: any) => ({
-              content: msg.message,
-              sender: publicKey,
-              timestamp: msg.timestamp,
-              formattedTime: formatTimestamp(msg.timestamp),
+                content: msg.message,
+                sender: publicKey,
+                timestamp: msg.timestamp,
+                formattedTime: formatTimestamp(msg.timestamp),
             })),
-          ]);
+            ]);
         }
     }, [otherPublicKey]);
 
@@ -454,9 +462,7 @@ function Chat() {
                     )}
                 </div>
             </div>
-            {showConnectWallet && (
-                <PopupWallet onClose={() => setShowConnectWallet(false)} />
-            )}
+            {isOpen && <Abstraxion onClose={() => setIsOpen(false)} />}
         </main>
     );
 }

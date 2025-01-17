@@ -5,7 +5,6 @@ import {
   useAbstraxionAccount,
   useAbstraxionSigningClient,
 } from "@burnt-labs/abstraxion";
-import { GasPrice, SigningStargateClient, StdFee, coins } from '@cosmjs/stargate';
 import Image from 'next/image';
 import DocImg from '@/public/Frame 75.svg';
 import Heart from '@/public/heart.svg';
@@ -23,8 +22,8 @@ import { collection, query, where, getDocs, addDoc } from 'firebase/firestore';
 import { db } from '@/app/components/firebase-config';
 import { useParams } from 'next/navigation';
 import { format } from 'date-fns';
-
-import { DirectSecp256k1Wallet } from '@cosmjs/proto-signing';
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 interface DoctorDetails {
     firstName: string;
@@ -75,7 +74,7 @@ function DocDetails() {
                         const doctorDoc = querySnapshot.docs[0].data() as DoctorDetails;
                         setDoctorDetails(doctorDoc);
                     } else {
-                        console.error('Doctor not found');
+                        toast.warning('Doctor not found');
                     }
                 } catch (error) {
                     console.error('Error fetching doctor details:', error);
@@ -99,133 +98,77 @@ function DocDetails() {
     // xion1v87k482eju82dw7tng0x4u3shce426k3yz9j9f084md3rc5u8lmq788ydj CA
     // xion1sqrv8xr96jjlv6647g6fq4pc7l97sxrzspvau02m98tac8la8ugsjvmve6 TREASURY
 
-    // const handleBooking = async () => {
-    //     if (!selectedDate || !selectedTime) {
-    //         alert('Please select a date and time');
-    //         return;
-    //     }
-
-    //     if (!account?.bech32Address || !client) {
-    //         setIsOpen(true);
-    //         return;
-    //     }
-
-    //     setLoading(true);
-
-    //     try {
-    //         const doctorWalletAddress = doctorDetails?.walletAddress || '';
-    //         const platformWalletAddress = 'xion16cvzs29c3ex4wrs2x663lrqp8e3fma9je6yjljt55xsvdnn3u09qdjz5xs';
-    //         const consultationFeeInUSDC = doctorDetails!.consultationFee;
-
-    //         // Calculate fees in uusdc (USDC has 6 decimal places)
-    //         const platformFee = Math.round(consultationFeeInUSDC * 0.1 * 1000000);
-    //         const doctorFee = Math.round(consultationFeeInUSDC * 0.9 * 1000000);
-
-    //         // Define the fee structure
-    //         const fee: StdFee = {
-    //             amount: coins(1000, 'uxion'), // Adjust the amount based on your needs
-    //             gas: "500000"
-    //         };
-
-    //         // Platform payment message
-    //         const platformPayment = {
-    //             typeUrl: "/cosmos.bank.v1beta1.MsgSend",
-    //             value: {
-    //                 fromAddress: account.bech32Address,
-    //                 toAddress: platformWalletAddress,
-    //                 amount: coins(platformFee.toString(), 'uusdc')
-    //             }
-    //         };
-
-    //         // Doctor payment message
-    //         const doctorPayment = {
-    //             typeUrl: "/cosmos.bank.v1beta1.MsgSend",
-    //             value: {
-    //                 fromAddress: account.bech32Address,
-    //                 toAddress: doctorWalletAddress,
-    //                 amount: coins(doctorFee.toString(), 'uusdc')
-    //             }
-    //         };
-
-    //         // Execute transaction using the Abstraxion client
-    //         const result = await client.signAndBroadcast(
-    //             account.bech32Address,
-    //             [platformPayment, doctorPayment],
-    //             fee,
-    //             `Consultation booking for ${selectedDate} at ${selectedTime}`
-    //         );
-
-    //         if (result.code === 0) {
-    //             await saveBookingToDatabase(result.transactionHash);
-    //             alert(`Session booked successfully! Transaction hash: ${result.transactionHash}`);
-    //         } else {
-    //             throw new Error(`Transaction failed with code ${result.code}: ${result.rawLog}`);
-    //         }
-    //     } catch (error) {
-    //         console.error('Payment failed:', error);
-    //         alert('Payment failed. Please try again.');
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
-
     const handleBooking = async () => {
         if (!selectedDate || !selectedTime) {
             alert('Please select a date and time');
             return;
         }
-    
+
         if (!account?.bech32Address || !client) {
             setIsOpen(true);
             return;
         }
-    
+
         setLoading(true);
-    
+
         try {
-            // const doctorWalletAddress = doctorDetails?.walletAddress || '';
-            const doctorWalletAddress = "xion16cvzs29c3ex4wrs2x663lrqp8e3fma9je6yjljt55xsvdnn3u09qdjz5xs";
+            const doctorWalletAddress = doctorDetails?.walletAddress || '';
+            const platformWalletAddress = 'xion16cvzs29c3ex4wrs2x663lrqp8e3fma9je6yjljt55xsvdnn3u09qdjz5xs';
             const consultationFeeInXION = doctorDetails!.consultationFee;
-    
-            // Convert XION amount to uxion (microXION - 6 decimals)
-            const feeInSmallestUnit = Math.round(consultationFeeInXION * 1000000);
-    
-            // Transfer message using XION
-            const transferMsg = {
+
+            // Calculate fees in uxion (6 decimals)
+            const platformFee = Math.round(consultationFeeInXION * 0.1 * 1000000);
+            const doctorFee = Math.round(consultationFeeInXION * 0.9 * 1000000);
+
+            // Platform payment message
+            const platformPayment = {
+                typeUrl: "/cosmos.bank.v1beta1.MsgSend",
+                value: {
+                    fromAddress: account.bech32Address,
+                    toAddress: platformWalletAddress,
+                    amount: [{
+                        denom: "uxion",
+                        amount: platformFee.toString()
+                    }]
+                }
+            };
+
+            // Doctor payment message
+            const doctorPayment = {
                 typeUrl: "/cosmos.bank.v1beta1.MsgSend",
                 value: {
                     fromAddress: account.bech32Address,
                     toAddress: doctorWalletAddress,
                     amount: [{
-                        denom: "uxion",  // Using XION's native token denomination
-                        amount: feeInSmallestUnit.toString()
+                        denom: "uxion",
+                        amount: doctorFee.toString()
                     }]
                 }
             };
-    
+
             const fee = 1.8;
-    
+
             const result = await client.signAndBroadcast(
                 account.bech32Address,
-                [transferMsg],
+                [platformPayment, doctorPayment],
                 fee
             );
-    
+
             if (result.code === 0) {
                 await saveBookingToDatabase(result.transactionHash);
-                alert(`Session booked successfully! Transaction hash: ${result.transactionHash}`);
+                toast.success(`Session booked successfully! Transaction hash: ${result.transactionHash}`);
             } else {
                 throw new Error(`Transaction failed with code ${result.code}: ${result.rawLog}`);
             }
         } catch (error: any) {
             console.error('Payment failed:', error);
-    
+
             if (error.message?.includes('authorization not found')) {
-                alert('Transaction failed: Unable to process payment. Please ensure you have enough XION tokens.');
+                toast.error('Transaction failed: Unable to process payment. Please ensure you have enough XION tokens.');
             } else if (error.message?.includes('insufficient funds')) {
-                alert('Transaction failed: Insufficient funds. Please check your XION balance.');
+                toast.error('Transaction failed: Insufficient funds. Please check your XION balance.');
             } else {
-                alert('Payment failed. Please try again.');
+                toast.error('Payment failed. Please try again.');
             }
         } finally {
             setLoading(false);
@@ -368,9 +311,8 @@ function DocDetails() {
                     </Link>
                 </nav>
             </footer>
-
-            {/* Abstraxion modal */}
             <Abstraxion onClose={() => setIsOpen(false)} />
+            <ToastContainer />
         </main>
     );
 }
